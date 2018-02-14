@@ -2,10 +2,12 @@ import csv
 import random
 import urllib
 import logging
+import re
 
 import discord
 import requests
 from discord.ext import commands
+import os
 
 logging.basicConfig(level=logging.INFO)
 
@@ -25,6 +27,84 @@ async def on_ready():
 
 
 @bot.command()
+async def meme():
+    memes_list = os.listdir('img/memes')
+    meme = random.choice(memes_list)
+
+    with open('img/memes/' + meme, 'rb') as f:
+        await bot.upload(f)
+
+
+@bot.command(aliases=['ava'], pass_context=True)
+async def avatar(ctx: commands.Context, *args):
+    username = None
+
+    if args:
+        username = ' '.join(args)
+
+    if not username:
+        await bot.say(ctx.message.author.avatar_url)
+    else:
+        members = ctx.message.author.server.members
+        for member in members:
+            print(member)
+            if re.match('.*' + str(username.lower()) + '.*', member.name.lower()):
+                if member.avatar_url:
+                    await bot.say(member.avatar_url)
+                    break
+                else:
+                    await bot.say(member.default_avatar_url)
+                    break
+            if member.nick is not None:
+                if re.match('.*' + str(username.lower()) + '.*', member.nick.lower()):
+                    if member.avatar_url:
+                        await bot.say(member.avatar_url)
+                        break
+                    else:
+                        await bot.say(member.default_avatar_url)
+                        break
+
+
+@bot.command(aliases=['insta', 'ig'])
+async def instagram(username, *args):
+    print(username)
+    page_source = requests.get('https://www.instagram.com/' + username).text
+
+    srcs = re.findall('"code":"(.*?)","', page_source)
+
+    urls = []
+
+    if srcs:
+        for src in srcs:
+            urls.append('https://www.instagram.com/p/' + src)
+            print(src)
+
+        if args:
+            for arg in args:
+                if arg == 'r' or arg == 'recent':
+                    url = urls[0]
+                elif arg.isdigit():
+                    url = urls[int(arg) - 1]
+        else:
+            url = random.choice(urls)
+
+        await bot.say(url)
+    else:
+        await bot.say("Profile doesn't exist or private.")
+
+    print(len(urls))
+
+
+@bot.command()
+async def bonds():
+    bonds_list = os.listdir('img/bonds')
+    bonds = random.choice(bonds_list)
+
+    with open('img/bonds/' + bonds, 'rb') as f:
+        await bot.upload(f)
+
+
+@bot.command()
 async def roll(*args):
     stop = 100
     help_menu = False
@@ -38,7 +118,7 @@ async def roll(*args):
         num = random.randrange(1, stop + 1)
         await bot.say(num)
     else:
-        embed = discord.Embed(title='roll -h, --help ', color=discord.Color(0x6d689b))
+        embed = discord.Embed(title='roll', color=discord.Color(0x6d689b))
         embed.add_field(name='__a.roll__', value='roll a random number between 1 and 100. place a number in front of a.roll to roll between 1 and x.\nex. `a.roll 10` to roll between 1 and 10', inline=False)
         await bot.say(embed=embed)
 
@@ -63,6 +143,7 @@ async def rs(*args):
         username = ' '.join(username)
     else:
         username = 'Kevintf'
+
     csv_f = requests.get(
         'http://services.runescape.com'
         '/m=hiscore_oldschool/index_lite.ws?player=' + username).text
@@ -112,13 +193,6 @@ async def rs(*args):
         row.append(rs[count])
         count += 1
         data.append(row)
-
-    # username = '[' + username + '](http://services.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=' + username + ')'
-
-    # if 'kevintf' in username.lower():
-    #     username = ':heart: ' + username + ' :heart:'
-    # else:
-    #     username = ':small_blue_diamond: ' + username + ' :small_blue_diamond:'
 
     embed = discord.Embed(color=discord.Color(0x6d689b))
 
@@ -280,6 +354,34 @@ async def rs(*args):
     await bot.say(embed=embed)
 
 
+@bot.command(name='8ball')
+async def _8ball():
+    responses = (
+        'It is certain',
+        'It is decidedly so',
+        'Without a doubt',
+        'Yes definitely',
+        'You may rely on it',
+        'As I see it, yes',
+        'Most likely',
+        'Outlook good',
+        'Yes',
+        'Signs point to yes',
+        'Reply hazy try again',
+        'Ask again later',
+        'Better not tell you now',
+        'Cannot predict now',
+        'Concentrate and ask again',
+        'Don\'t count on it',
+        'My reply is no',
+        'My sources say no',
+        'Outlook not so good',
+        'Very doubtful'
+    )
+    response = random.choice(responses)
+    await bot.say(response)
+
+
 @bot.command()
 async def coin(*args):
     cmc = requests.get(
@@ -297,7 +399,9 @@ async def coin(*args):
             num = float(arg)
         elif arg == '--help' or arg == '-h':
             embed = discord.Embed(title='coin -h, --help ', color=discord.Color(0x6d689b))
-            embed.add_field(name='__a.coin__', value='default values are 1 btc\n-> `a.coin`\n----> 1 BTC = $8805.74 USD', inline=False)
+            embed.add_field(
+                name='__a.coin__',
+                value='default values are 1 btc\n-> `a.coin`\n----> 1 BTC = $8805.74 USD', inline=False)
             embed.add_field(name='__a.coin num__', value='default symbol is btc\n-> `a.coin .4`\n----> 0.4 BTC = $3515.60 USD', inline=False)
             embed.add_field(name='__a.coin symb__', value='symb can be any of the ticker symbols from the top 100 on [coinmarketcap](http://coinmarketcap.com).\n`-> a.coin ETH`\n----> 1 ETH = $868.05 USD', inline=False)
             embed.add_field(name='__a.coin num symb__', value='-> `a.coin 2.45 xmr`\n----> 2.45 XMR = $607.84 USD', inline=False)
