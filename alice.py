@@ -119,7 +119,10 @@ async def roll(*args):
         await bot.say(num)
     else:
         embed = discord.Embed(title='roll', color=discord.Color(0x6d689b))
-        embed.add_field(name='__a.roll__', value='roll a random number between 1 and 100. place a number in front of a.roll to roll between 1 and x.\nex. `a.roll 10` to roll between 1 and 10', inline=False)
+        embed.add_field(
+            name='__a.roll__',
+            value='roll a random number between 1 and 100. place a number in front of a.roll to roll between 1 and x.\nex. `a.roll 10` to roll between 1 and 10',
+            inline=False)
         await bot.say(embed=embed)
 
 
@@ -150,7 +153,7 @@ async def rs(*args):
 
     reader = csv.reader(csv_f.splitlines(), delimiter=',')
 
-    rs = [
+    rs_unordered = [
         'Overall',
         'Attack',
         'Defense',
@@ -190,7 +193,7 @@ async def rs(*args):
     data = []
 
     for row in reader:
-        row.append(rs[count])
+        row.append(rs_unordered[count])
         count += 1
         data.append(row)
 
@@ -198,158 +201,85 @@ async def rs(*args):
 
     username_parse = urllib.parse.quote_plus(username)
 
-    embed.set_author(name=username, url='http://services.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=' + username_parse, icon_url='https://raw.githubusercontent.com/cheazy/alice/master/img/runescape.png')
+    embed.set_author(
+        name=username,
+        url='http://services.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=' + username_parse,
+        icon_url='https://raw.githubusercontent.com/cheazy/alice/master/img/runescape.png')
 
-    ordered_rs = [
-        'Attack',
-        'Hitpoints',
-        'Mining',
-        'Strength',
-        'Agility',
-        'Smithing',
-        'Defense',
-        'Herblore',
-        'Fishing',
-        'Ranged',
-        'Thieving',
-        'Cooking',
-        'Prayer',
-        'Crafting',
-        'Firemaking',
-        'Magic',
-        'Fletching',
-        'Woodcutting',
-        'Runecraft',
-        'Slayer',
-        'Farming',
-        'Construction',
-        'Hunter',
-        'Overall'
-    ]
+    rs = {
+        'Attack': '<:attack:412729368536940544>',
+        'Hitpoints': '<:hitpoints:412729368633147392>',
+        'Mining': '<:mining:412729368637603852>',
+        'Strength': '<:strength:412729746666029123>',
+        'Agility': '<:agility:412729368364974102>',
+        'Smithing': '<:smithing:412729368696061952>',
+        'Defense': '<:defense:412729368574427136>',
+        'Herblore': '<:herblore:412729368608243713>',
+        'Fishing': '<:fishing:412729368507580427>',
+        'Ranged': '<:ranged:412729368427888662>',
+        'Thieving': '<:thieving:412729368843124736>',
+        'Cooking': '<:cook:412729368205328386>',
+        'Prayer': '<:prayer:412729368364974094>',
+        'Crafting': '<:crafting:412729368532746240>',
+        'Firemaking': '<:firemaking:412729368461312001>',
+        'Magic': '<:magic:412729368817696768>',
+        'Fletching': '<:fletching:412729368469831685>',
+        'Woodcutting': '<:woodcutting:412729368776015872>',
+        'Runecraft': '<:runecraft:412729368704581632>',
+        'Slayer': '<:slayer:412729368654118944>',
+        'Farming': '<:farming:412729368205328395>',
+        'Construction': '<:construct:412729368528289822>',
+        'Hunter': '<:hunter:412729368671027200>',
+        'Overall': '<:total:412729368675221526>'
+    }
 
     del data[-9:]
     text_data = ''
     count = 1
     space_gap = 0
 
-    for rank, level, xp, skill in data:
-        # o_data += skill + ' ' + rank + ' ' + level + ' ' + xp + '\n'
-        if not ordered_rs:
-            break
+    level = 1
 
-        for rank, level, xp, skill in data:
-            if skill == ordered_rs[0] and ordered_rs:
-                if skill == 'Attack':
-                    # skill = ':crossed_swords:'
-                    skill_icon = '<:attack:412729368536940544>'
-                elif skill == 'Defense':
-                    # skill = ':shield:'
-                    skill_icon = '<:defense:412729368574427136>'
-                elif skill == 'Strength':
-                    # skill = ':fist:'
-                    skill_icon = '<:strength:412729746666029123>'
-                elif skill == 'Hitpoints':
-                    # skill = ':heart:'
-                    skill_icon = '<:hitpoints:412729368633147392>'
-                elif skill == 'Ranged':
-                    # skill = ':bow_and_arrow:'
-                    skill_icon = '<:ranged:412729368427888662>'
-                elif skill == 'Prayer':
-                    # skill = ':pray:'
-                    skill_icon = '<:prayer:412729368364974094>'
-                elif skill == 'Magic':
-                    # skill = ':sparkles:'
-                    skill_icon = '<:magic:412729368817696768>'
-                elif skill == 'Agility':
-                    # skill = ':runner:'
-                    skill_icon = '<:agility:412729368364974102>'
-                elif skill == 'Thieving':
-                    # skill = ':man_with_turban::skin-tone-5:' + skill
-                    skill_icon = '<:thieving:412729368843124736>'
-                elif skill == 'Fishing':
-                    # skill = ':fishing_pole_and_fish:'
-                    skill_icon = '<:fishing:412729368507580427>'
-                elif skill == 'Farming':
-                    # skill = ':seedling:'
-                    skill_icon = '<:farming:412729368205328395>'
-                elif skill == 'Woodcutting':
-                    # skill = ':evergreen_tree:'
-                    skill_icon = '<:woodcutting:412729368776015872>'
-                elif skill == 'Hunter':
-                    # skill = ':monkey:'
-                    skill_icon = '<:hunter:412729368671027200>'
-                elif skill == 'Construction':
-                    # skill = ':classical_building:'
-                    skill_icon = '<:construct:412729368528289822>'
-                elif skill == 'Herblore':
-                    # skill = ':mushroom:'
-                    skill_icon = '<:herblore:412729368608243713>'
-                elif skill == 'Firemaking':
-                    # skill = ':fire:'
-                    skill_icon = '<:firemaking:412729368461312001>'
-                elif skill == 'Cooking':
-                    # skill = ':pizza:'
-                    skill_icon = '<:cook:412729368205328386>'
-                elif skill == 'Mining':
-                    # skill = ':pick:'
-                    skill_icon = '<:mining:412729368637603852>'
-                elif skill == 'Overall':
-                    # skill = ':bar_chart:'
-                    skill_icon = '<:total:412729368675221526>'
-                elif skill == 'Runecraft':
-                    # skill = ':full_moon:'
-                    skill_icon = '<:runecraft:412729368704581632>'
-                elif skill == 'Crafting':
-                    # skill = ':hammer_pick:'
-                    skill_icon = '<:crafting:412729368532746240>'
-                elif skill == 'Fletching':
-                    # skill = ':sagittarius:'
-                    skill_icon = '<:fletching:412729368469831685>'
-                elif skill == 'Slayer':
-                    # skill = ':japanese_ogre:'
-                    skill_icon = '<:slayer:412729368654118944>'
-                elif skill == 'Smithing':
-                    # skill = ':hammer:'
-                    skill_icon = '<:smithing:412729368696061952>'
-                # embed.add_field(name=skill, value='⠀⠀⠀⠀' + level)
-
-                space_gap = 15 - len(skill)
-                if skill == 'Agility':
-                    space_gap += 2
-                elif skill == 'Defense':
-                    space_gap -= 1
-                elif skill == 'Fishing':
-                    space_gap += 2
-                elif skill == 'Prayer':
-                    space_gap += 2
-                elif skill == 'Firemaking':
-                    space_gap -= 2
-                elif skill == 'Runecraft':
-                    space_gap -= 1
-                elif skill == 'Hunter':
-                    space_gap += 1
-
-                if len(level) == 1:
-                    space_gap += 3
-
-                # print(skill, space_gap)
-                if level == '99':
-                    level = '__99__'
-                elif level == '2277':
-                    level = '__2277__'
-
-                if count == 3 and three:
-                    text_data += skill_icon + ' ' + level + ' ' + skill + '\n'
-                    count = 1      
-                elif (count == 2 or long) and not three:
-                    text_data += skill_icon + ' ' + level + ' ' + skill + '\n'
-                    count = 1
-                else:
-                    text_data += skill_icon + ' ' + level + ' ' + skill + ' ' * space_gap
-                    count += 1
-                embed.description = text_data
-                ordered_rs.pop(0)
+    for skill, icon in rs.items():
+        for ranks_data, level_data, xp_data, skill_data in data:
+            if skill == skill_data:
+                level = level_data
                 break
+
+        space_gap = 15 - len(skill)
+        if skill == 'Agility':
+            space_gap += 2
+        elif skill == 'Defense':
+            space_gap -= 1
+        elif skill == 'Fishing':
+            space_gap += 2
+        elif skill == 'Prayer':
+            space_gap += 2
+        elif skill == 'Firemaking':
+            space_gap -= 2
+        elif skill == 'Runecraft':
+            space_gap -= 1
+        elif skill == 'Hunter':
+            space_gap += 1
+
+        if len(level) == 1:
+            space_gap += 3
+
+        if level == '99':
+            level = '__99__'
+        elif level == '2277':
+            level = '__2277__'
+
+        if count == 3 and three:
+            text_data += icon + ' ' + level + ' ' + skill + '\n'
+            count = 1
+        elif (count == 2 or long) and not three:
+            text_data += icon + ' ' + level + ' ' + skill + '\n'
+            count = 1
+        else:
+            text_data += icon + ' ' + level + ' ' + skill + ' ' * space_gap
+            count += 1
+        embed.description = text_data
 
     await bot.say(embed=embed)
 
@@ -394,7 +324,7 @@ async def coin(*args):
     for arg in args:
         if any(char.isdigit() for char in arg):
             for char in arg:
-                if char == 'k' or char == 'K':
+                if char.lower() == 'k':
                     arg = float(arg[:-1]) * 1000
             num = float(arg)
         elif arg == '--help' or arg == '-h':
