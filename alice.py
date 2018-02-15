@@ -1,22 +1,19 @@
 import csv
-import random
-import urllib
 import logging
+import os
+import random
 import re
+import urllib
 
 import discord
 import requests
 from discord.ext import commands
-import os
 
 logging.basicConfig(level=logging.INFO)
 
 bot = commands.Bot(command_prefix=('a.', 'A.'))
 
-token_file = open('token', 'r')
-token = token_file.read()
-token_file.close()
-
+owner_id = '239212486673301505'
 
 @bot.event
 async def on_ready():
@@ -96,12 +93,13 @@ async def instagram(username, *args):
 
 
 @bot.command()
-async def bonds():
-    bonds_list = os.listdir('img/bonds')
-    bonds = random.choice(bonds_list)
+async def bons():
+    bons_dir = 'img/bons/'
+    bons_list = os.listdir(bons_dir)
+    bons_img = random.choice(bons_list)
 
-    with open('img/bonds/' + bonds, 'rb') as f:
-        await bot.upload(f)
+    with open(bons_dir + bons_img, 'rb') as file:
+        await bot.upload(file)
 
 
 @bot.command()
@@ -126,167 +124,10 @@ async def roll(*args):
         await bot.say(embed=embed)
 
 
-@bot.command()
-async def rs(*args):
-    print(args)
-    long = False
-    three = False
-    username = []
-    for arg in args:
-        if arg == '--long' or arg == '-l':
-            long = True
-            three = False
-        elif arg == '-3':
-            three = True
-            long = False
-        else:
-            username.append(arg)
-
-    if username:
-        username = ' '.join(username)
-    else:
-        username = 'Kevintf'
-
-    csv_f = requests.get(
-        'http://services.runescape.com'
-        '/m=hiscore_oldschool/index_lite.ws?player=' + username).text
-
-    reader = csv.reader(csv_f.splitlines(), delimiter=',')
-
-    rs_unordered = [
-        'Overall',
-        'Attack',
-        'Defense',
-        'Strength',
-        'Hitpoints',
-        'Ranged',
-        'Prayer',
-        'Magic',
-        'Cooking',
-        'Woodcutting',
-        'Fletching',
-        'Fishing',
-        'Firemaking',
-        'Crafting',
-        'Smithing',
-        'Mining',
-        'Herblore',
-        'Agility',
-        'Thieving',
-        'Slayer',
-        'Farming',
-        'Runecraft',
-        'Hunter',
-        'Construction',
-        'Clue Scrolls (easy)',
-        'Clue Scrolls (medium)',
-        'Clue Scrolls (all)',
-        None,
-        None,
-        'Clue Scrolls (hard)',
-        None,
-        None,
-        None
-    ]
-
-    count = 0
-    data = []
-
-    for row in reader:
-        row.append(rs_unordered[count])
-        count += 1
-        data.append(row)
-
-    embed = discord.Embed(color=discord.Color(0x6d689b))
-
-    username_parse = urllib.parse.quote_plus(username)
-
-    embed.set_author(
-        name=username,
-        url='http://services.runescape.com/m=hiscore_oldschool/hiscorepersonal.ws?user1=' + username_parse,
-        icon_url='https://raw.githubusercontent.com/cheazy/alice/master/img/runescape.png')
-
-    rs = {
-        'Attack': '<:attack:412729368536940544>',
-        'Hitpoints': '<:hitpoints:412729368633147392>',
-        'Mining': '<:mining:412729368637603852>',
-        'Strength': '<:strength:412729746666029123>',
-        'Agility': '<:agility:412729368364974102>',
-        'Smithing': '<:smithing:412729368696061952>',
-        'Defense': '<:defense:412729368574427136>',
-        'Herblore': '<:herblore:412729368608243713>',
-        'Fishing': '<:fishing:412729368507580427>',
-        'Ranged': '<:ranged:412729368427888662>',
-        'Thieving': '<:thieving:412729368843124736>',
-        'Cooking': '<:cook:412729368205328386>',
-        'Prayer': '<:prayer:412729368364974094>',
-        'Crafting': '<:crafting:412729368532746240>',
-        'Firemaking': '<:firemaking:412729368461312001>',
-        'Magic': '<:magic:412729368817696768>',
-        'Fletching': '<:fletching:412729368469831685>',
-        'Woodcutting': '<:woodcutting:412729368776015872>',
-        'Runecraft': '<:runecraft:412729368704581632>',
-        'Slayer': '<:slayer:412729368654118944>',
-        'Farming': '<:farming:412729368205328395>',
-        'Construction': '<:construct:412729368528289822>',
-        'Hunter': '<:hunter:412729368671027200>',
-        'Overall': '<:total:412729368675221526>'
-    }
-
-    del data[-9:]
-    text_data = ''
-    count = 1
-    space_gap = 0
-
-    level = 1
-
-    for skill, icon in rs.items():
-        for ranks_data, level_data, xp_data, skill_data in data:
-            if skill == skill_data:
-                level = level_data
-                break
-
-        space_gap = 15 - len(skill)
-        if skill == 'Agility':
-            space_gap += 2
-        elif skill == 'Defense':
-            space_gap -= 1
-        elif skill == 'Fishing':
-            space_gap += 2
-        elif skill == 'Prayer':
-            space_gap += 2
-        elif skill == 'Firemaking':
-            space_gap -= 2
-        elif skill == 'Runecraft':
-            space_gap -= 1
-        elif skill == 'Hunter':
-            space_gap += 1
-
-        if len(level) == 1:
-            space_gap += 3
-
-        if level == '99':
-            level = '__99__'
-        elif level == '2277':
-            level = '__2277__'
-
-        if count == 3 and three:
-            text_data += icon + ' ' + level + ' ' + skill + '\n'
-            count = 1
-        elif (count == 2 or long) and not three:
-            text_data += icon + ' ' + level + ' ' + skill + '\n'
-            count = 1
-        else:
-            text_data += icon + ' ' + level + ' ' + skill + ' ' * space_gap
-            count += 1
-        embed.description = text_data
-
-    await bot.say(embed=embed)
-
-
 @bot.command(name='8ball')
 async def _8ball():
-    responses = (
+    
+    responses = [
         'It is certain',
         'It is decidedly so',
         'Without a doubt',
@@ -302,12 +143,13 @@ async def _8ball():
         'Better not tell you now',
         'Cannot predict now',
         'Concentrate and ask again',
-        'Don\'t count on it',
+        "Don't count on it",
         'My reply is no',
         'My sources say no',
         'Outlook not so good',
         'Very doubtful'
-    )
+    ]
+
     response = random.choice(responses)
     await bot.say(response)
 
@@ -361,4 +203,33 @@ async def coin(*args):
             str(num) + ' ' + symb.upper() + ' = $' + str(symb_price) + ' USD')
 
 
-bot.run(token)
+def load_token() -> str:
+    token_file = open('token', 'r')
+    token = token_file.read()
+    token_file.close()
+
+    return token
+
+
+def is_owner(ctx):
+    print(ctx.message.author.id)
+    return ctx.message.author.id == owner_id
+
+
+@bot.command(name='reload', pass_context=True)
+@commands.check(is_owner)
+async def _reload(ctx, module):
+    bot.unload_extension(module)
+    bot.load_extension(module)
+
+
+def main(bot: commands.Bot) -> None:
+    token = load_token()
+    bot.load_extension('cogs.runescape')
+    bot.run(token)
+
+
+
+
+if __name__ == '__main__':
+    main(bot)
