@@ -1,9 +1,7 @@
-import csv
 import logging
 import os
 import random
 import re
-import urllib
 
 import discord
 import requests
@@ -227,8 +225,6 @@ def main(bot: commands.Bot) -> None:
     token = load_token()
     bot.load_extension('cogs.runescape')
     bot.run(token)
-
-
 
 
 if __name__ == '__main__':

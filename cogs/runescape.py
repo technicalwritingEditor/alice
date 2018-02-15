@@ -10,16 +10,12 @@ class Runescape:
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @commands.command(name='rs')
-    async def rs2(self, *username):
+    @commands.command(aliases=['rs', 'rs3'], pass_context=True)
+    async def rs2(self, ctx: commands.Context, *username):
+        rs = ctx.message.content[2:5]
         username = ' '.join(username)
-        payload = {'player': username}
-        hiscore_data: str = requests.get(
-            'http://services.runescape.com'
-            '/m=hiscore_oldschool/index_lite.ws',
-            params=payload).text
-
-        reader = csv.reader(hiscore_data.splitlines())
+        hiscore_csv = get_hiscore_csv(username, rs=rs)
+        reader = csv.reader(hiscore_csv.splitlines())
 
         hiscore_data = [
             ['Overall', '<:total:412729368675221526>'],
@@ -45,7 +41,11 @@ class Runescape:
             ['Farming', '<:farming:412729368205328395>'],
             ['Runecraft', '<:runecraft:412729368704581632>'],
             ['Hunter', '<:hunter:412729368671027200>'],
-            ['Construction', '<:construct:412729368528289822>']
+            ['Construction', '<:construct:412729368528289822>'],
+            ['Summoning', '<:summoning:413537893970083840>'],
+            ['Dungeoneering', '<:dungeoneering:413537893924208640>'],
+            ['Divination', '<:divination:413537204820901888>'],
+            ['Invention', '<:invention:413537478859948052>']
             # ['Clue Scrolls (easy)'],
             # ['Clue Scrolls (medium)'],
             # ['Clue Scrolls (all)'],
@@ -58,22 +58,37 @@ class Runescape:
         ]
 
         for row_count, row in enumerate(reader):
-            # row 24+ are clue scroll and blank data
-            if row_count == 24:
-                break
+            if rs == 'rs3':
+                if row_count == 28:
+                    break
+                else:
+                    hiscore_data[row_count].extend(row)
             else:
-                hiscore_data[row_count].extend(row)
-                print(row_count, row)
-
+                # row 24+ is for rs3
+                if row_count == 24:
+                    del hiscore_data[-4:]
+                    break
+                else:
+                    hiscore_data[row_count].extend(row)
+    
         embed = discord.Embed(color=discord.Color(0x6d689b))
         username_parse = urllib.parse.quote_plus(username)
 
+        if rs == 'rs3':
+            embed_url = (
+                'http://services.runescape.com/m=hiscore/compare?user1=' +
+                username_parse
+            )
+        else:
+            embed_url = (
+                'http://services.runescape.com/m=hiscore_oldschool/'
+                'hiscorepersonal.ws?user1=' + username_parse)
+
         embed.set_author(
             name=username,
-            url='http://services.runescape.com/m=hiscore_oldschool/'
-                'hiscorepersonal.ws?user1=' + username_parse,
+            url=embed_url,
             icon_url='https://raw.githubusercontent.com/'
-                'cheazy/alice/master/img/runescape.png'
+                     'cheazy/alice/master/img/runescape.png'
         )
 
         description_text = ''
@@ -83,7 +98,9 @@ class Runescape:
             'Woodcutting': -8,
             'Crafting': -1,
             'Agility': 1,
-            'Runecraft': -3
+            'Runecraft': -3,
+            'Construction': -5,
+            'Dungeoneering': -9
         }
 
         for row_count, data in enumerate(hiscore_data):
@@ -112,9 +129,19 @@ class Runescape:
         embed.description = description_text
         await self.bot.say(embed=embed)
 
-    @commands.command()
-    async def rs3(self, username):
-        pass
+
+def get_hiscore_csv(username, rs='rs'):
+    rs_string = ''
+    if rs == 'rs ' or rs == 'rs2':
+        rs_string = '_oldschool'
+
+    payload = {'player': username}
+    hiscore_csv: str = requests.get(
+        'http://services.runescape.com'
+        '/m=hiscore' + rs_string + '/index_lite.ws',
+        params=payload).text
+
+    return hiscore_csv
 
 
 def setup(bot: commands.Bot) -> None:
