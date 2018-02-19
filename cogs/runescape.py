@@ -1,5 +1,5 @@
 import csv
-import urllib
+import urllib.parse
 
 import discord
 import requests
@@ -10,8 +10,8 @@ class Runescape:
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @commands.command(aliases=['rs', 'rs3'], pass_context=True)
-    async def rs2(self, ctx: commands.Context, *username):
+    @commands.command(aliases=['rs2', 'rs3'], pass_context=True)
+    async def rs(self, ctx: commands.Context, *username):
         rs = ctx.message.content[2:5]
         username = ' '.join(username)
         hiscore_csv = get_hiscore_csv(username, rs=rs)
@@ -70,7 +70,7 @@ class Runescape:
                     break
                 else:
                     hiscore_data[row_count].extend(row)
-    
+
         embed = discord.Embed(color=discord.Color(0x6d689b))
         username_parse = urllib.parse.quote_plus(username)
 
@@ -105,7 +105,7 @@ class Runescape:
 
         for row_count, data in enumerate(hiscore_data):
             skill, icon, _rank, level, _xp = data
-            space_gap = 25 - len(skill)
+            space_gap = 23 - len(skill)
             if len(level) == 1:
                 space_gap += 3
             if skill in space_gaps.keys():

@@ -2,6 +2,7 @@ import logging
 import os
 import random
 import re
+from bs4 import BeautifulSoup
 
 import discord
 import requests
@@ -11,7 +12,9 @@ logging.basicConfig(level=logging.INFO)
 
 bot = commands.Bot(command_prefix=('a.', 'A.'))
 
+# replace with your own id
 owner_id = '239212486673301505'
+
 
 @bot.event
 async def on_ready():
@@ -58,6 +61,28 @@ async def avatar(ctx: commands.Context, *args):
                     else:
                         await bot.say(member.default_avatar_url)
                         break
+
+
+@bot.command(aliases=['twit', 'tw'])
+async def twitter(username):
+    page_source = requests.get('https://www.twitter.com/' + username).text
+
+    soup = BeautifulSoup(page_source, 'lxml')
+
+    posts = soup.find_all(class_='tweet-timestamp js-permalink js-nav js-tooltip')
+    urls = []
+
+    for post in posts:
+
+        print(post.get('href'))
+        link_username = re.findall('/(.*?)/status/', post.get('href'))
+        print(link_username[0])
+        if username.lower() == link_username[0].lower():
+            urls.append('https://www.twitter.com' + post.get('href'))
+
+    url = random.choice(urls)
+
+    await bot.say(url)
 
 
 @bot.command(aliases=['insta', 'ig'])
@@ -124,7 +149,6 @@ async def roll(*args):
 
 @bot.command(name='8ball')
 async def _8ball():
-    
     responses = [
         'It is certain',
         'It is decidedly so',
@@ -136,11 +160,6 @@ async def _8ball():
         'Outlook good',
         'Yes',
         'Signs point to yes',
-        'Reply hazy try again',
-        'Ask again later',
-        'Better not tell you now',
-        'Cannot predict now',
-        'Concentrate and ask again',
         "Don't count on it",
         'My reply is no',
         'My sources say no',
