@@ -114,6 +114,8 @@ class Runescape:
                 level = '__99__'
             elif level == '2277':
                 level = '__2277__'
+            elif level == '120':
+                level = '__120__'
 
             if row_count % 2:
                 description_text += (
