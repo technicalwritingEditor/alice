@@ -24,15 +24,6 @@ async def on_ready():
     print('------')
 
 
-@bot.command()
-async def meme():
-    memes_list = os.listdir('img/memes')
-    meme = random.choice(memes_list)
-
-    with open('img/memes/' + meme, 'rb') as f:
-        await bot.upload(f)
-
-
 @bot.command(aliases=['ava'], pass_context=True)
 async def avatar(ctx: commands.Context, *args):
     username = None
