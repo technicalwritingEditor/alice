@@ -90,7 +90,7 @@ async def instagram(username, *args):
     print(username)
     page_source = requests.get('https://www.instagram.com/' + username).text
 
-    srcs = re.findall('"code":"(.*?)","', page_source)
+    srcs = re.findall('"shortcode":"(.*?)","', page_source)
 
     urls = []
 
@@ -101,12 +101,12 @@ async def instagram(username, *args):
 
         if args:
             for arg in args:
-                if arg == 'r' or arg == 'recent':
-                    url = urls[0]
+                if arg == 'r' or arg == 'random':
+                    url = random.choice(urls)
                 elif arg.isdigit():
                     url = urls[int(arg) - 1]
         else:
-            url = random.choice(urls)
+            url = urls[0]
 
         await bot.say(url)
     else:
