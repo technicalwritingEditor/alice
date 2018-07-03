@@ -88,7 +88,7 @@ class Runescape:
             name=username,
             url=embed_url,
             icon_url='https://raw.githubusercontent.com/'
-                     'cheazy/alice/master/img/runescape.png'
+                     'cheazy/alice/master/img/rs/runescape.png'
         )
 
         description_text = ''

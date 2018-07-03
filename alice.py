@@ -11,10 +11,10 @@ from discord.ext import commands
 
 logging.basicConfig(level=logging.INFO)
 
-bot = commands.Bot(command_prefix=('a.', 'A.'))
+bot = commands.Bot(command_prefix=("a.", "A."))
 
 # replace with your own id
-owner_id = '239212486673301505'
+owner_id = "239212486673301505"
 
 def is_owner(ctx):
     print(ctx.message.author.id)
@@ -22,10 +22,10 @@ def is_owner(ctx):
 
 @bot.event
 async def on_ready():
-    print('Logged in as')
+    print("Logged in as")
     print(bot.user.name)
     print(bot.user.id)
-    print('------')
+    print("------")
 
     for server in bot.servers:
         print(server)
@@ -33,7 +33,7 @@ async def on_ready():
 @bot.event
 async def on_command_error(error, ctx):
     if isinstance(error, commands.CommandOnCooldown):
-        await bot.send_message(ctx.message.channel, content='This command is on a %.2fs cooldown' % error.retry_after)
+        await bot.send_message(ctx.message.channel, content="This command is on a %.2fs cooldown" % error.retry_after)
     raise error  # re-raise the error so all the errors will still show up in console
 
 
@@ -91,12 +91,12 @@ async def role(ctx: commands.Context, *args):
 async def colorcodes():
     await bot.say("https://htmlcolorcodes.com/")
 
-@bot.command(aliases=['ava'], pass_context=True)
+@bot.command(aliases=["ava"], pass_context=True)
 async def avatar(ctx: commands.Context, *args):
     username = None
 
     if args:
-        username = ' '.join(args)
+        username = " ".join(args)
 
     if not username:
         await bot.say(ctx.message.author.avatar_url)
@@ -104,7 +104,7 @@ async def avatar(ctx: commands.Context, *args):
         members = ctx.message.author.server.members
         for member in members:
             print(member)
-            if re.match('.*' + str(username.lower()) + '.*', member.name.lower()):
+            if re.match(".*" + str(username.lower()) + ".*", member.name.lower()):
                 if member.avatar_url:
                     await bot.say(member.avatar_url)
                     break
@@ -112,7 +112,7 @@ async def avatar(ctx: commands.Context, *args):
                     await bot.say(member.default_avatar_url)
                     break
             if member.nick is not None:
-                if re.match('.*' + str(username.lower()) + '.*', member.nick.lower()):
+                if re.match(".*" + str(username.lower()) + ".*", member.nick.lower()):
                     if member.avatar_url:
                         await bot.say(member.avatar_url)
                         break
@@ -121,30 +121,30 @@ async def avatar(ctx: commands.Context, *args):
                         break
 
 
-@bot.command(aliases=['twit', 'tw'])
+@bot.command(aliases=["twit", "tw"])
 async def twitter(username):
-    page_source = requests.get('https://www.twitter.com/' + username).text
-    soup = BeautifulSoup(page_source, 'lxml')
-    posts = soup.find_all(class_='tweet-timestamp js-permalink js-nav js-tooltip')
+    page_source = requests.get("https://www.twitter.com/" + username).text
+    soup = BeautifulSoup(page_source, "lxml")
+    posts = soup.find_all(class_="tweet-timestamp js-permalink js-nav js-tooltip")
     urls = []
 
     for post in posts:
 
-        print(post.get('href'))
-        link_username = re.findall('/(.*?)/status/', post.get('href'))
+        print(post.get("href"))
+        link_username = re.findall("/(.*?)/status/", post.get("href"))
         print(link_username[0])
         if username.lower() == link_username[0].lower():
-            urls.append('https://www.twitter.com' + post.get('href'))
+            urls.append("https://www.twitter.com" + post.get("href"))
 
     url = random.choice(urls)
 
     await bot.say(url)
 
 
-@bot.command(aliases=['insta', 'ig'])
+@bot.command(aliases=["insta", "ig"])
 async def instagram(username, *args):
     print(username)
-    page_source = requests.get('https://www.instagram.com/' + username).text
+    page_source = requests.get("https://www.instagram.com/" + username).text
 
     srcs = re.findall('"shortcode":"(.*?)","', page_source)
 
@@ -152,12 +152,12 @@ async def instagram(username, *args):
 
     if srcs:
         for src in srcs:
-            urls.append('https://www.instagram.com/p/' + src)
+            urls.append("https://www.instagram.com/p/" + src)
             print(src)
 
         if args:
             for arg in args:
-                if arg == 'r' or arg == 'random':
+                if arg == "r" or arg == "random":
                     url = random.choice(urls)
                 elif arg.isdigit():
                     url = urls[int(arg) - 1]
@@ -175,7 +175,7 @@ async def roll(*args):
     stop = 100
     help_menu = False
     for arg in args:
-        if arg == '-h' or arg == '--help':
+        if arg == "-h" or arg == "--help":
             help_menu = True
         elif arg:
             stop = int(arg)
@@ -184,15 +184,15 @@ async def roll(*args):
         num = random.randrange(1, stop + 1)
         await bot.say(num)
     else:
-        embed = discord.Embed(title='roll', color=discord.Color(0x6d689b))
+        embed = discord.Embed(title="roll", color=discord.Color(0x6d689b))
         embed.add_field(
-            name='__a.roll__',
-            value='roll a random number between 1 and 100. place a number in front of a.roll to roll between 1 and x.\nex. `a.roll 10` to roll between 1 and 10',
+            name="__a.roll__",
+            value="roll a random number between 1 and 100. place a number in front of a.roll to roll between 1 and x.\nex. `a.roll 10` to roll between 1 and 10",
             inline=False)
         await bot.say(embed=embed)
 
 
-@bot.command(name='8ball')
+@bot.command(name="8ball")
 async def _8ball():
     responses = [
         'It is certain',
@@ -265,14 +265,14 @@ async def coin(*args):
 
 
 def load_token() -> str:
-    token_file = open('token', 'r')
+    token_file = open("token", "r")
     token = token_file.read()
     token_file.close()
 
     return token
 
 
-@bot.command(name='reload', pass_context=True)
+@bot.command(name="reload", pass_context=True)
 @commands.check(is_owner)
 async def _reload(ctx, module):
     bot.unload_extension(module)
@@ -281,9 +281,9 @@ async def _reload(ctx, module):
 
 def main(bot: commands.Bot) -> None:
     token = load_token()
-    bot.load_extension('cogs.runescape')
+    bot.load_extension("cogs.runescape")
     bot.run(token)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(bot)
