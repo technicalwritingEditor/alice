@@ -2,10 +2,11 @@ import logging
 import os
 import random
 import re
-from bs4 import BeautifulSoup
+import time
 
 import discord
 import requests
+from bs4 import BeautifulSoup
 from discord.ext import commands
 
 logging.basicConfig(level=logging.INFO)
@@ -15,6 +16,9 @@ bot = commands.Bot(command_prefix=('a.', 'A.'))
 # replace with your own id
 owner_id = '239212486673301505'
 
+def is_owner(ctx):
+    print(ctx.message.author.id)
+    return ctx.message.author.id == owner_id
 
 @bot.event
 async def on_ready():
@@ -23,6 +27,66 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
+    for server in bot.servers:
+        print(server)
+
+@bot.event
+async def on_command_error(error, ctx):
+    if isinstance(error, commands.CommandOnCooldown):
+        await bot.send_message(ctx.message.channel, content='This command is on a %.2fs cooldown' % error.retry_after)
+    raise error  # re-raise the error so all the errors will still show up in console
+
+
+@bot.command(pass_context=True)
+@commands.cooldown(1, 5, commands.BucketType.user)
+async def color(ctx: commands.Context, color=None):
+    colors = {
+        "white": "FFFFFF",
+        "silver": "C0C0C0",
+        "gray": "808080",
+        "black": "000000",
+        "red": "FF0000",
+        "maroon": "800000",
+        "yellow": "FFFF00",
+        "olive": "808000",
+        "lime": "00FF00",
+        "green": "008000",
+        "aqua": "00FFFF",
+        "teal": "008080",
+        "blue": "0000FF",
+        "navy": "000080",
+        "pink": "FF00FF",
+        "purple": "800080"
+    }
+
+    if color in colors:
+        color = colors[color]
+    if color == None:
+        color = discord.Color(random.randint(0x000000, 0xFFFFFF))
+    elif len(color) == 6:
+        color = discord.Color(int(f"0x{color}", 0))
+    elif len(color) == 7:
+        color = discord.Color(int(f"0x{color[1:]}", 0))
+    await ctx.bot.edit_role(ctx.message.server, ctx.message.author.top_role, color=color)
+    await bot.say("Changed role color.")
+
+@bot.command(pass_context=True)
+@commands.cooldown(1, 5, commands.BucketType.user)
+async def role(ctx: commands.Context, *args):
+    name = " "
+
+    if args:
+        name = " ".join(args)
+
+    if name != "@everyone" and ctx.message.author.top_role.name != "@everyone":
+        print(ctx.message.author.top_role.name, "@everyone")
+        print(type(ctx.message.author.top_role.name), type("@everyone"))
+        await ctx.bot.edit_role(ctx.message.server, ctx.message.author.top_role, name=name)
+        await bot.say("Changed role name to: " + name)
+
+@bot.command()
+async def colorcodes():
+    await bot.say("https://htmlcolorcodes.com/")
 
 @bot.command(aliases=['ava'], pass_context=True)
 async def avatar(ctx: commands.Context, *args):
@@ -57,9 +121,7 @@ async def avatar(ctx: commands.Context, *args):
 @bot.command(aliases=['twit', 'tw'])
 async def twitter(username):
     page_source = requests.get('https://www.twitter.com/' + username).text
-
     soup = BeautifulSoup(page_source, 'lxml')
-
     posts = soup.find_all(class_='tweet-timestamp js-permalink js-nav js-tooltip')
     urls = []
 
@@ -105,17 +167,6 @@ async def instagram(username, *args):
 
     print(len(urls))
 
-
-@bot.command()
-async def bons():
-    bons_dir = 'img/bons/'
-    bons_list = os.listdir(bons_dir)
-    bons_img = random.choice(bons_list)
-
-    with open(bons_dir + bons_img, 'rb') as file:
-        await bot.upload(file)
-
-
 @bot.command()
 async def roll(*args):
     stop = 100
@@ -157,7 +208,6 @@ async def _8ball():
         'Outlook not so good',
         'Very doubtful'
     ]
-
     response = random.choice(responses)
     await bot.say(response)
 
@@ -217,11 +267,6 @@ def load_token() -> str:
     token_file.close()
 
     return token
-
-
-def is_owner(ctx):
-    print(ctx.message.author.id)
-    return ctx.message.author.id == owner_id
 
 
 @bot.command(name='reload', pass_context=True)
