@@ -60,16 +60,18 @@ async def color(ctx: commands.Context, color=None):
         "default": "000000"
     }
 
-    if color in colors:
-        color = colors[color]
-    if color == None:
-        color = discord.Color(random.randint(0x000000, 0xFFFFFF))
-    elif len(color) == 6:
-        color = discord.Color(int(f"0x{color}", 0))
-    elif len(color) == 7:
-        color = discord.Color(int(f"0x{color[1:]}", 0))
-    await ctx.bot.edit_role(ctx.message.server, ctx.message.author.top_role, color=color)
-    await bot.say("Changed role color.")
+    if ctx.message.author.top_role.name != "squad":
+        if color in colors:
+            color = colors[color]
+        if color == None:
+            color = discord.Color(random.randint(0x000000, 0xFFFFFF))
+        elif len(color) == 6:
+            color = discord.Color(int(f"0x{color}", 0))
+        elif len(color) == 7:
+            color = discord.Color(int(f"0x{color[1:]}", 0))
+
+        await ctx.bot.edit_role(ctx.message.server, ctx.message.author.top_role, color=color)
+        await bot.say("Changed role color.")
 
 @bot.command(pass_context=True)
 @commands.cooldown(1, 5, commands.BucketType.user)
@@ -79,7 +81,7 @@ async def role(ctx: commands.Context, *args):
     if args:
         name = " ".join(args)
 
-    if name != "@everyone" and ctx.message.author.top_role.name != "@everyone":
+    if name != "@everyone" and ctx.message.author.top_role.name != "@everyone" and ctx.message.author.top_role.name != "squad":
         print(ctx.message.author.top_role.name, "@everyone")
         print(type(ctx.message.author.top_role.name), type("@everyone"))
         await ctx.bot.edit_role(ctx.message.server, ctx.message.author.top_role, name=name)
