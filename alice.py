@@ -41,10 +41,6 @@ async def on_command_error(error, ctx):
 @commands.cooldown(1, 5, commands.BucketType.user)
 async def color(ctx: commands.Context, color=None):
     colors = {
-        "white": "FFFFFF",
-        "silver": "C0C0C0",
-        "gray": "808080",
-        "black": "000000",
         "red": "FF0000",
         "maroon": "800000",
         "yellow": "FFFF00",
@@ -56,7 +52,12 @@ async def color(ctx: commands.Context, color=None):
         "blue": "0000FF",
         "navy": "000080",
         "pink": "FF00FF",
-        "purple": "800080"
+        "purple": "800080",
+        "white": "FFFFFF",
+        "silver": "C0C0C0",
+        "gray": "808080",
+        "black": "000001",
+        "default": "000000"
     }
 
     if color in colors:
