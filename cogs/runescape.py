@@ -6,21 +6,20 @@ import requests
 from discord.ext import commands
 
 
-class Runescape:
+class RuneScape:
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
     @commands.command(aliases=["rs3"], pass_context=True)
     async def rs(self, ctx: commands.Context, *username):
-        """
-        Runescape Hiscore Look Up
+        """Runescape Hiscore Look Up
 
         Examples:
         # Look up Oldschool Runescape Hiscores
-        a.rs cheazy
+        a.rs alice
 
         # Look up Runescape 3 Hiscores
-        a.rs3 cheazy
+        a.rs3 alice
         """
         rs = ctx.message.content[2:5]
         username = " ".join(username)
@@ -157,4 +156,4 @@ def get_hiscore_csv(username, rs="rs"):
 
 
 def setup(bot: commands.Bot) -> None:
-    bot.add_cog(Runescape(bot))
+    bot.add_cog(RuneScape(bot))

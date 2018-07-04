@@ -6,7 +6,6 @@ import time
 
 import discord 
 import requests
-from bs4 import BeautifulSoup
 from discord.ext import commands
 
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +26,8 @@ async def on_ready():
     print(bot.user.id)
     print("------")
 
+    await bot.change_presence(game=discord.Game(name="a.help"))
+
     for server in bot.servers:
         print(server)
 
@@ -36,60 +37,6 @@ async def on_command_error(error, ctx):
         await bot.send_message(ctx.message.channel, content="This command is on a %.2fs cooldown" % error.retry_after)
     raise error  # re-raise the error so all the errors will still show up in console
 
-
-@bot.command(pass_context=True)
-@commands.cooldown(1, 5, commands.BucketType.user)
-async def color(ctx: commands.Context, color=None):
-    colors = {
-        "red": "FF0000",
-        "maroon": "800000",
-        "yellow": "FFFF00",
-        "olive": "808000",
-        "lime": "00FF00",
-        "green": "008000",
-        "aqua": "00FFFF",
-        "teal": "008080",
-        "blue": "0000FF",
-        "navy": "000080",
-        "pink": "FF00FF",
-        "purple": "800080",
-        "white": "FFFFFF",
-        "silver": "C0C0C0",
-        "gray": "808080",
-        "black": "000001",
-        "default": "000000"
-    }
-
-    if ctx.message.author.top_role.name != "squad":
-        if color in colors:
-            color = colors[color]
-        if color == None:
-            color = discord.Color(random.randint(0x000000, 0xFFFFFF))
-        elif len(color) == 6:
-            color = discord.Color(int(f"0x{color}", 0))
-        elif len(color) == 7:
-            color = discord.Color(int(f"0x{color[1:]}", 0))
-
-        await ctx.bot.edit_role(ctx.message.server, ctx.message.author.top_role, color=color)
-        await bot.say("Changed role color.")
-
-@bot.command(pass_context=True)
-@commands.cooldown(1, 5, commands.BucketType.user)
-async def role(ctx: commands.Context, *args):
-    name = " "
-
-    if args:
-        name = " ".join(args)
-
-    if name != "@everyone" and ctx.message.author.top_role.name != "@everyone" and ctx.message.author.top_role.name != "squad":
-        print(ctx.message.author.top_role.name, "@everyone")
-        print(type(ctx.message.author.top_role.name), type("@everyone"))
-        await ctx.bot.edit_role(ctx.message.server, ctx.message.author.top_role, name=name)
-        await bot.say("Changed role name to: " + name)
-
-@bot.command()
-async def colorcodes():
-    await bot.say("https://htmlcolorcodes.com/")
 
 @bot.command(aliases=["ava"], pass_context=True)
 async def avatar(ctx: commands.Context, *args):
@@ -120,55 +67,6 @@ async def avatar(ctx: commands.Context, *args):
                         await bot.say(member.default_avatar_url)
                         break
 
-
-@bot.command(aliases=["twit", "tw"])
-async def twitter(username):
-    page_source = requests.get("https://www.twitter.com/" + username).text
-    soup = BeautifulSoup(page_source, "lxml")
-    posts = soup.find_all(class_="tweet-timestamp js-permalink js-nav js-tooltip")
-    urls = []
-
-    for post in posts:
-
-        print(post.get("href"))
-        link_username = re.findall("/(.*?)/status/", post.get("href"))
-        print(link_username[0])
-        if username.lower() == link_username[0].lower():
-            urls.append("https://www.twitter.com" + post.get("href"))
-
-    url = random.choice(urls)
-
-    await bot.say(url)
-
-
-@bot.command(aliases=["insta", "ig"])
-async def instagram(username, *args):
-    print(username)
-    page_source = requests.get("https://www.instagram.com/" + username).text
-
-    srcs = re.findall('"shortcode":"(.*?)","', page_source)
-
-    urls = []
-
-    if srcs:
-        for src in srcs:
-            urls.append("https://www.instagram.com/p/" + src)
-            print(src)
-
-        if args:
-            for arg in args:
-                if arg == "r" or arg == "random":
-                    url = random.choice(urls)
-                elif arg.isdigit():
-                    url = urls[int(arg) - 1]
-        else:
-            url = urls[0]
-
-        await bot.say(url)
-    else:
-        await bot.say("Profile doesn't exist or private.")
-
-    print(len(urls))
 
 @bot.command()
 async def roll(*args):
@@ -282,6 +180,8 @@ async def _reload(ctx, module):
 def main(bot: commands.Bot) -> None:
     token = load_token()
     bot.load_extension("cogs.runescape")
+    bot.load_extension("cogs.role_edit")
+    bot.load_extension("cogs.social")
     bot.run(token)
 
 
