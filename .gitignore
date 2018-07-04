@@ -1,8 +1,5 @@
 .mypy_cache
 .vscode
-token
+cogs/__pycache
 test
-img/bons
-img/memes
-cogs/__pycache__
-venv
+token

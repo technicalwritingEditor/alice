@@ -4,7 +4,7 @@ import random
 import re
 import time
 
-import discord
+import discord 
 import requests
 from bs4 import BeautifulSoup
 from discord.ext import commands
@@ -195,21 +195,21 @@ async def roll(*args):
 @bot.command(name="8ball")
 async def _8ball():
     responses = [
-        'It is certain',
-        'It is decidedly so',
-        'Without a doubt',
-        'Yes definitely',
-        'You may rely on it',
-        'As I see it, yes',
-        'Most likely',
-        'Outlook good',
-        'Yes',
-        'Signs point to yes',
+        "It is certain",
+        "It is decidedly so",
+        "Without a doubt",
+        "Yes definitely",
+        "You may rely on it",
+        "As I see it, yes",
+        "Most likely",
+        "Outlook good",
+        "Yes",
+        "Signs point to yes",
         "Don't count on it",
-        'My reply is no',
-        'My sources say no',
-        'Outlook not so good',
-        'Very doubtful'
+        "My reply is no",
+        "My sources say no",
+        "Outlook not so good",
+        "Very doubtful"
     ]
     response = random.choice(responses)
     await bot.say(response)
@@ -218,50 +218,50 @@ async def _8ball():
 @bot.command()
 async def coin(*args):
     cmc = requests.get(
-        'https://api.coinmarketcap.com/v1/ticker/').json()
+        "https://api.coinmarketcap.com/v1/ticker/").json()
 
-    symb = 'btc'
+    symb = "btc"
     num = 1
     called_help = False
 
     for arg in args:
         if any(char.isdigit() for char in arg):
             for char in arg:
-                if char.lower() == 'k':
+                if char.lower() == "k":
                     arg = float(arg[:-1]) * 1000
             num = float(arg)
-        elif arg == '--help' or arg == '-h':
-            embed = discord.Embed(title='coin -h, --help ', color=discord.Color(0x6d689b))
+        elif arg == "--help" or arg == "-h":
+            embed = discord.Embed(title="coin -h, --help ", color=discord.Color(0x6d689b))
             embed.add_field(
-                name='__a.coin__',
-                value='default values are 1 btc\n-> `a.coin`\n----> 1 BTC = $8805.74 USD', inline=False)
-            embed.add_field(name='__a.coin num__', value='default symbol is btc\n-> `a.coin .4`\n----> 0.4 BTC = $3515.60 USD', inline=False)
-            embed.add_field(name='__a.coin symb__', value='symb can be any of the ticker symbols from the top 100 on [coinmarketcap](http://coinmarketcap.com).\n`-> a.coin ETH`\n----> 1 ETH = $868.05 USD', inline=False)
-            embed.add_field(name='__a.coin num symb__', value='-> `a.coin 2.45 xmr`\n----> 2.45 XMR = $607.84 USD', inline=False)
+                name="__a.coin__",
+                value="default values are 1 btc\n-> `a.coin`\n----> 1 BTC = $8805.74 USD", inline=False)
+            embed.add_field(name="__a.coin num__", value="default symbol is btc\n-> `a.coin .4`\n----> 0.4 BTC = $3515.60 USD", inline=False)
+            embed.add_field(name="__a.coin symb__", value="symb can be any of the ticker symbols from the top 100 on [coinmarketcap](http://coinmarketcap.com).\n`-> a.coin ETH`\n----> 1 ETH = $868.05 USD", inline=False)
+            embed.add_field(name="__a.coin num symb__", value="-> `a.coin 2.45 xmr`\n----> 2.45 XMR = $607.84 USD", inline=False)
             await bot.say(embed=embed)
             called_help = True
         else:
             symb = arg
 
     for coin in cmc:
-        if str(coin['symbol']).lower() == symb.lower():
-            symb_price = round(float(coin['price_usd']) * num, 2)
-            symb_price = f'{symb_price:.2f}'
+        if str(coin["symbol"]).lower() == symb.lower():
+            symb_price = round(float(coin["price_usd"]) * num, 2)
+            symb_price = f"{symb_price:.2f}"
 
-    '''if usd == 'usd':
+    """if usd == "usd":
         print(arg, btc_price)
-        usd_price = arg / round(float(btc[0]['price_usd']))
-        usd_price = f'{usd_price:.4f}'
-        arg = f'{arg:.2f}'
-        await bot.say(str(arg) + ' USD = ' + str(usd_price) + ' BTC')
-    else:'''
+        usd_price = arg / round(float(btc[0]["price_usd"]))
+        usd_price = f"{usd_price:.4f}"
+        arg = f"{arg:.2f}"
+        await bot.say(str(arg) + " USD = " + str(usd_price) + " BTC")
+    else:"""
 
     if num == 1:
-        num = ''
+        num = ""
 
     if not called_help:
         await bot.say(
-            str(num) + ' ' + symb.upper() + ' = $' + str(symb_price) + ' USD')
+            str(num) + " " + symb.upper() + " = $" + str(symb_price) + " USD")
 
 
 def load_token() -> str:
